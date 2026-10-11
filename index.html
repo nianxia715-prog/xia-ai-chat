@@ -27,6 +27,13 @@
     const chat = document.getElementById('chat');
     const input = document.getElementById('input');
     const sendBtn = document.getElementById('send');
+
+    // ============ 这里填你的信息 ============
+    const API_KEY = 'sk-wknbzhupvdooceshdimahjcmlkkdnqevbnsgcwuhonqjrpqn';
+    const API_URL = 'https://api.siliconflow.cn/v1/chat/completions';
+    const MODEL = 'deepseek-ai/DeepSeek-V3';
+    // ========================================
+
     let messages = [
       { role: "system", content: "你是一个友好的AI助手。" }
     ];
@@ -46,12 +53,37 @@
       addMsg('user', text);
       messages.push({ role: "user", content: text });
 
-      // 这里暂时用假回复，下一步教你怎么接真正的 API
-      setTimeout(() => {
-        const fakeReply = "我收到啦！API 还没接上，下一步我们就搞这个。";
-        addMsg('assistant', fakeReply);
-        messages.push({ role: "assistant", content: fakeReply });
-      }, 500);
+      // 显示“正在输入...”
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'msg assistant';
+      loadingDiv.textContent = '...';
+      chat.appendChild(loadingDiv);
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + API_KEY
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: messages
+          })
+        });
+
+        const data = await res.json();
+        const reply = data.choices[0].message.content;
+
+        // 移除“正在输入...”
+        chat.removeChild(loadingDiv);
+
+        addMsg('assistant', reply);
+        messages.push({ role: "assistant", content: reply });
+      } catch (err) {
+        chat.removeChild(loadingDiv);
+        addMsg('assistant', '出错了：' + err.message);
+      }
     }
 
     sendBtn.addEventListener('click', sendMessage);
