@@ -4,8 +4,60 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My AI Chat</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f0f2f5; display: flex; flex-direction: column; height: 100vh; }
+    #chat { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .msg { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 15px; line-height: 1.5; word-break: break-word; }
+    .user { align-self: flex-end; background: #007aff; color: white; border-bottom-right-radius: 4px; }
+    .assistant { align-self: flex-start; background: white; color: #333; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    #input-area { display: flex; padding: 10px; background: white; border-top: 1px solid #ddd; gap: 8px; }
+    #input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 20px; outline: none; font-size: 15px; }
+    #send { padding: 0 20px; border: none; background: #007aff; color: white; border-radius: 20px; font-weight: bold; cursor: pointer; }
+  </style>
 </head>
 <body>
-  <h1>Hello，这是我的 AI 聊天前端</h1>
+  <div id="chat"></div>
+  <div id="input-area">
+    <input id="input" type="text" placeholder="说点什么..." />
+    <button id="send">发送</button>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+    let messages = [
+      { role: "system", content: "你是一个友好的AI助手。" }
+    ];
+
+    function addMsg(role, text) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + role;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      addMsg('user', text);
+      messages.push({ role: "user", content: text });
+
+      // 这里暂时用假回复，下一步教你怎么接真正的 API
+      setTimeout(() => {
+        const fakeReply = "我收到啦！API 还没接上，下一步我们就搞这个。";
+        addMsg('assistant', fakeReply);
+        messages.push({ role: "assistant", content: fakeReply });
+      }, 500);
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
 </body>
 </html>
